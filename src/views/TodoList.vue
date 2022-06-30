@@ -1,9 +1,13 @@
 <template>
   <div class="main">
-    <form class="add-todo">
-      <input type="text" placeholder="新增代辦事項" />
-      <font-awesome-icon icon="plus" class="i-plus"></font-awesome-icon>
-    </form>
+    <div class="add-todo">
+      <input @keyup="keyUpSubmitTodo" v-model="temptodo" type="text" placeholder="新增代辦事項" />
+      <font-awesome-icon
+        @click="submitTodo"
+        icon="plus"
+        class="i-plus"
+      ></font-awesome-icon>
+    </div>
     <div class="wrapper">
       <ul class="switch-wrapper">
         <li>全部</li>
@@ -11,29 +15,24 @@
         <li>已完成</li>
       </ul>
       <ul class="todo-wrapper">
-        <li>
-          <div class="square"></div>
-          <p>把冰箱發霉的檸檬拿去丟</p>
-        </li>
-        <li>
-            <font-awesome-icon icon="check" class="i-check"></font-awesome-icon>
-          <p class="isFinished">打電話叫媽媽匯款給我</p>
-        </li>
-        <li>
-          <div class="square"></div>
-          <p>整理電腦資料夾</p>
-        </li>
-        <li>
-          <div class="square"></div>
-          <p>繳電費水費瓦斯費</p>
-        </li>
-        <li>
-          <div class="square"></div>
-          <p>約vicky禮拜三泡溫泉</p>
-        </li>
-        <li>
-          <div class="square"></div>
-          <p>約ada禮拜四吃晚餐</p>
+        <li
+          @mouseenter="todo.hideTrash = !todo.hideTrash"
+          @mouseleave="todo.hideTrash = !todo.hideTrash"
+          class="flex items-center justify-between duration-150"
+          v-for="todo in todos"
+          :key="todo.id"
+        >
+          <div
+            @click="isDone = !isDone"
+            class="flex cursor-pointer items-center"
+          >
+            <font-awesome-icon v-show="isDone" icon="check" class="i-check" />
+            <div v-show="!isDone" class="square"></div>
+            <p>{{ todo.item }}</p>
+          </div>
+          <transition>
+            <font-awesome-icon :class="{ 'hideTrash': todo.hideTrash, 'showTrash': !todo.hideTrash }" @click="deleteTodo(index)" icon="trash" class="i-trash cursor-pointer" />
+          </transition>
         </li>
         <ul class="state">
           <li>5 個待完成項目</li>
@@ -43,8 +42,63 @@
     </div>
   </div>
 </template>
+<script>
+export default {
+  data() {
+    return {
+      isDone: false,
+      temptodo: '',
+      todos: [
+        { id:0, item: "把冰箱發霉的檸檬拿去丟", status: false, hideTrash: true},
+        ],
+    };
+  },
+  methods: {
+    // toggleShow(index){
+    //   this.todos[index].isShow = !this.todos[index].isShow
+    //   console.log('test')
+    // },
+    keyUpSubmitTodo(e){
+      if(e.key === "Enter" && this.temptodo){
+        this.todos.push({
+          id: this.todos.length+1,
+          item: this.temptodo,
+          status: false,
+          hideTrash: true
+        })
+        this.temptodo = ''
+        console.log(this.todos)
+      } 
+    },
+    submitTodo(){
+      if(this.temptodo){
+        this.todos.push({
+          item: this.temptodo,
+          status: false,
+          hideTrash: true
+
+        })
+      }
+      this.temptodo = ''
+    },
+    deleteTodo(index){
+      this.todos.splice(index, 1)
+    }
+    
+  }
+};
+</script>
 
 <style lang="scss">
+// v-bind class
+.hideTrash {
+  display: none;
+}
+.showTrash {
+  display: block;
+}
+
+
 /* utility */
 :root {
   --primary: #ffd370;
@@ -134,16 +188,7 @@
 }
 
 // style.css
-html {
-  height: 100%;
-}
-body {
-  box-sizing: border-box;
-  margin: 0;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background: linear-gradient(172.7deg, #ffd370 50%, #fff 50%);
-}
+
 input {
   border: 0;
   outline: none;
@@ -195,6 +240,9 @@ input[placeholder] {
   color: white;
   border-radius: 10px;
   margin-right: 4px;
+}
+.i-trash {
+  color: rgb(101, 101, 101);
 }
 
 .wrapper {
@@ -262,11 +310,11 @@ input[placeholder] {
 }
 
 .i-check {
-font-size: 20px;
-width: 20px;
-border-radius: 5px;
-text-align: center;
-color: var(--primary);
+  font-size: 20px;
+  width: 20px;
+  border-radius: 5px;
+  text-align: center;
+  color: var(--primary);
 }
 
 .state {
