@@ -10,15 +10,16 @@
     </div>
     <div class="wrapper">
       <ul class="switch-wrapper">
-        <li>全部</li>
-        <li>待完成</li>
-        <li>已完成</li>
+        <li @click="switchToAll">全部</li>
+        <li @click="switchToProgress">待完成</li>
+        <li @click="switchToDone">已完成</li>
       </ul>
       <ul class="todo-wrapper">
         <li
           @mouseenter="todo.hideTrash = !todo.hideTrash"
           @mouseleave="todo.hideTrash = !todo.hideTrash"
           class="flex items-center justify-between"
+          v-show="todo.status == switchOptions"
           v-for="(todo,index) in todos"
           :key="todo.id"
         >
@@ -28,7 +29,7 @@
           >
             <font-awesome-icon :class="['isDone' == todo.status ? 'show' : 'hide']" icon="check" class="i-check" />
             <div :class="['inProgress' == todo.status ? 'show' : 'hide']" class="square"></div>
-            <p>{{ todo.item }}</p>
+            <p :class="['isDone' == todo.status ? 'isDone-item' : '']" class="hover:line-through duration-75">{{ todo.item }}</p>
           </div>
           <font-awesome-icon :class="{ 'hide': todo.hideTrash, 'show': !todo.hideTrash }" @click="deleteTodo(index)" icon="trash" class="i-trash cursor-pointer" />
         </li>
@@ -45,7 +46,9 @@ export default {
   data() {
     return {
       isDone: false,
+      showAll: false,
       temptodo: '',
+      switchOptions: '',
       statusOptions: ['inProgress', 'isDone'],
       todos: [
         { id:0, status:'inProgress', item: "把冰箱發霉的檸檬拿去丟", hideTrash: true,},
@@ -83,6 +86,15 @@ export default {
       let newIndex = this.statusOptions.indexOf(this.todos[index].status)
       if(++ newIndex > 1) newIndex = 0
       this.todos[index].status = this.statusOptions[newIndex]
+    },
+    switchToProgress(){
+      this.switchOptions = this.statusOptions[0]
+    },
+    switchToDone(){
+      this.switchOptions = this.statusOptions[1]
+    },
+    switchToAll(){
+      this.showAll = !this.showAll
     }
     
   }
@@ -95,6 +107,13 @@ export default {
   display: none;
 }
 .show {
+  display: block;
+}
+.isDone-item {
+  text-decoration-line: line-through;
+  color: #868686;
+}
+.showAll {
   display: block;
 }
 
@@ -283,6 +302,7 @@ input[placeholder] {
       left: 0;
       right: 0;
     }
+    
   }
 }
 
