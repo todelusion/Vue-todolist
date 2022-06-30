@@ -18,21 +18,19 @@
         <li
           @mouseenter="todo.hideTrash = !todo.hideTrash"
           @mouseleave="todo.hideTrash = !todo.hideTrash"
-          class="flex items-center justify-between duration-150"
-          v-for="todo in todos"
+          class="flex items-center justify-between"
+          v-for="(todo,index) in todos"
           :key="todo.id"
         >
           <div
-            @click="isDone = !isDone"
+            @click="toggleStatus(index)"
             class="flex cursor-pointer items-center"
           >
-            <font-awesome-icon v-show="isDone" icon="check" class="i-check" />
-            <div v-show="!isDone" class="square"></div>
+            <font-awesome-icon :class="['isDone' == todo.status ? 'show' : 'hide']" icon="check" class="i-check" />
+            <div :class="['inProgress' == todo.status ? 'show' : 'hide']" class="square"></div>
             <p>{{ todo.item }}</p>
           </div>
-          <transition>
-            <font-awesome-icon :class="{ 'hideTrash': todo.hideTrash, 'showTrash': !todo.hideTrash }" @click="deleteTodo(index)" icon="trash" class="i-trash cursor-pointer" />
-          </transition>
+          <font-awesome-icon :class="{ 'hide': todo.hideTrash, 'show': !todo.hideTrash }" @click="deleteTodo(index)" icon="trash" class="i-trash cursor-pointer" />
         </li>
         <ul class="state">
           <li>5 個待完成項目</li>
@@ -48,22 +46,19 @@ export default {
     return {
       isDone: false,
       temptodo: '',
+      statusOptions: ['inProgress', 'isDone'],
       todos: [
-        { id:0, item: "把冰箱發霉的檸檬拿去丟", status: false, hideTrash: true},
+        { id:0, status:'inProgress', item: "把冰箱發霉的檸檬拿去丟", hideTrash: true,},
         ],
-    };
+    };  
   },
   methods: {
-    // toggleShow(index){
-    //   this.todos[index].isShow = !this.todos[index].isShow
-    //   console.log('test')
-    // },
     keyUpSubmitTodo(e){
       if(e.key === "Enter" && this.temptodo){
         this.todos.push({
           id: this.todos.length+1,
           item: this.temptodo,
-          status: false,
+          status:'inProgress',
           hideTrash: true
         })
         this.temptodo = ''
@@ -74,7 +69,7 @@ export default {
       if(this.temptodo){
         this.todos.push({
           item: this.temptodo,
-          status: false,
+          status: 'inProgress',
           hideTrash: true
 
         })
@@ -83,6 +78,11 @@ export default {
     },
     deleteTodo(index){
       this.todos.splice(index, 1)
+    },
+    toggleStatus(index){
+      let newIndex = this.statusOptions.indexOf(this.todos[index].status)
+      if(++ newIndex > 1) newIndex = 0
+      this.todos[index].status = this.statusOptions[newIndex]
     }
     
   }
@@ -91,10 +91,10 @@ export default {
 
 <style lang="scss">
 // v-bind class
-.hideTrash {
+.hide {
   display: none;
 }
-.showTrash {
+.show {
   display: block;
 }
 
