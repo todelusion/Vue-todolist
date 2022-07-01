@@ -19,7 +19,7 @@
           @mouseenter="todo.hideTrash = !todo.hideTrash"
           @mouseleave="todo.hideTrash = !todo.hideTrash"
           class="flex items-center justify-between"
-          v-show="todo.status == switchOptions"
+          v-show="showTodo(todo)"
           v-for="(todo,index) in todos"
           :key="todo.id"
         >
@@ -34,8 +34,8 @@
           <font-awesome-icon :class="{ 'hide': todo.hideTrash, 'show': !todo.hideTrash }" @click="deleteTodo(index)" icon="trash" class="i-trash cursor-pointer" />
         </li>
         <ul class="state">
-          <li>5 個待完成項目</li>
-          <li class="text-second">清除已完成項目</li>
+          <li>{{ todosCount() }} 個待完成項目</li>
+          <li @click="clearDone" class="text-gray-400">清除已完成項目</li>
         </ul>
       </ul>
     </div>
@@ -46,7 +46,6 @@ export default {
   data() {
     return {
       isDone: false,
-      showAll: false,
       temptodo: '',
       switchOptions: '',
       statusOptions: ['inProgress', 'isDone'],
@@ -65,7 +64,6 @@ export default {
           hideTrash: true
         })
         this.temptodo = ''
-        console.log(this.todos)
       } 
     },
     submitTodo(){
@@ -87,16 +85,36 @@ export default {
       if(++ newIndex > 1) newIndex = 0
       this.todos[index].status = this.statusOptions[newIndex]
     },
+    showTodo(todo){
+      if(this.switchOptions == this.statusOptions[0] || this.switchOptions == this.statusOptions[1]){
+        return todo.status == this.switchOptions
+      }else {
+        return true
+      }
+    },
+    switchToAll(){
+      this.switchOptions = ''
+    },
     switchToProgress(){
       this.switchOptions = this.statusOptions[0]
     },
     switchToDone(){
       this.switchOptions = this.statusOptions[1]
     },
-    switchToAll(){
-      this.showAll = !this.showAll
+    todosCount(){
+      let count = this.todos.filter( element => element.status == 'inProgress' )
+      return count.length
+    },
+    clearDone(){
+      // this.todos.forEach((element, index) => {
+      //     if(element.status == 'isDone'){
+      //       this.todos.splice(element.id, 1)
+      //       console.log(this.todos)
+      //     }
+      //   })
+   
+      this.todos = this.todos.filter(item => (item.status=='inProgress'))
     }
-    
   }
 };
 </script>
