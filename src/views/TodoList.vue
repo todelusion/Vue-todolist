@@ -35,7 +35,7 @@
         </li>
         <ul class="state">
           <li>{{ todosCount() }} 個待完成項目</li>
-          <li @click="clearDone" class="text-gray-400">清除已完成項目</li>
+          <li @click="clearDone" class="text-gray-400 cursor-pointer">清除已完成項目</li>
         </ul>
       </ul>
     </div>
