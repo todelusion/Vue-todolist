@@ -60,8 +60,8 @@ export default {
   created(){
     axios.get(this.apiDomain)
     .then(res => {
-      console.log(res)
       this.todos = res.data
+      console.log(this.todos)
     })
   },
   methods: {
@@ -74,6 +74,7 @@ export default {
         })
         this.saveApi()
         this.temptodo = ''
+        axios.get(this.apiDomain)
       } 
     },
     submitTodo(){
@@ -109,13 +110,24 @@ export default {
         .catch(error => console.log(error))
         console.log(res.data)
       })
-
-  
     },
     toggleStatus(index){
       let newIndex = this.statusOptions.indexOf(this.todos[index].status)
       if(++ newIndex > 1) newIndex = 0
       this.todos[index].status = this.statusOptions[newIndex]
+      axios.get(this.apiDomain)
+      .then(res => {
+        res.data.forEach((element,n) => {
+          if(element.item == this.todos[index].item){
+            let statusUrl = `${this.apiDomain}/${element.id}`
+            axios.patch(statusUrl, {
+              
+              status: this.todos[index].status
+            })
+            .then(res => console.log(res))
+          }
+        })
+      })
     },
     showTodo(todo){
       if(this.switchOptions == this.statusOptions[0] || this.switchOptions == this.statusOptions[1]){
@@ -134,11 +146,16 @@ export default {
       this.switchOptions = this.statusOptions[1]
     },
     todosCount(){
-      let count = this.todos.filter( element => element.status == 'inProgress' )
-      return count.length
+      let inProgressArr = this.todos.filter(element => element.status === 'inProgress')
+      return inProgressArr.length
     },
     clearDone(){
+      axios.get(this.apiDomain)
       this.todos = this.todos.filter(item => (item.status=='inProgress'))
+      .then(res => {
+        console.log(res.data)
+        res.data.filter(element => element.status === 'inProgress' )
+      })
     },
     saveApi(){
       let obj = {}
