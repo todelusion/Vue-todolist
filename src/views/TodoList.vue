@@ -36,12 +36,16 @@
         <ul class="state">
           <li>{{ todosCount() }} 個待完成項目</li>
           <li @click="clearDone" class="text-gray-400 cursor-pointer">清除已完成項目</li>
+          <li @click="clearAll" class="text-red-400 cursor-pointer">清除全部</li>
+
         </ul>
       </ul>
     </div>
   </div>
 </template>
+
 <script>
+import axios from 'axios';
 export default {
   data() {
     return {
@@ -49,20 +53,26 @@ export default {
       temptodo: '',
       switchOptions: '',
       statusOptions: ['inProgress', 'isDone'],
-      todos: [
-        { id:0, status:'inProgress', item: "把冰箱發霉的檸檬拿去丟", hideTrash: true,},
-        ],
+      todos:'',
+      apiDomain: 'https://fathomless-brushlands-42339.herokuapp.com/todo8'
     };  
+  },
+  created(){
+    axios.get(this.apiDomain)
+    .then(res => {
+      console.log(res)
+      this.todos = res.data
+    })
   },
   methods: {
     keyUpSubmitTodo(e){
       if(e.key === "Enter" && this.temptodo){
         this.todos.push({
-          id: this.todos.length+1,
           item: this.temptodo,
           status:'inProgress',
           hideTrash: true
         })
+        this.saveApi()
         this.temptodo = ''
       } 
     },
@@ -74,11 +84,33 @@ export default {
           hideTrash: true
 
         })
-      }
+      this.saveApi()
       this.temptodo = ''
+      }
     },
     deleteTodo(index){
-      this.todos.splice(index, 1)
+      /*API delete*/
+      let deleteIndex
+      axios.get(this.apiDomain)
+      .then(res => {
+        console.log(res.data)
+        for(let i=0; i<res.data.length; i++){
+          if(res.data[i].item === this.todos[index].item){
+            deleteIndex = i
+          }
+        }
+        console.log(deleteIndex)
+        let deleteUrl = `${this.apiDomain}/${res.data[deleteIndex].id}`
+        axios.delete(deleteUrl)
+        .then(res => {
+          
+          this.todos.splice(index, 1)
+        })
+        .catch(error => console.log(error))
+        console.log(res.data)
+      })
+
+  
     },
     toggleStatus(index){
       let newIndex = this.statusOptions.indexOf(this.todos[index].status)
@@ -106,14 +138,28 @@ export default {
       return count.length
     },
     clearDone(){
-      // this.todos.forEach((element, index) => {
-      //     if(element.status == 'isDone'){
-      //       this.todos.splice(element.id, 1)
-      //       console.log(this.todos)
-      //     }
-      //   })
-   
       this.todos = this.todos.filter(item => (item.status=='inProgress'))
+    },
+    saveApi(){
+      let obj = {}
+      obj.item = this.temptodo
+      obj.status = 'inProgress'
+      obj.hideTrash = true
+      console.log(obj)
+      axios.post(this.apiDomain,obj)
+    },
+    clearAll(){
+      axios.get(this.apiDomain)
+      .then(res =>{
+        res.data.forEach(element => {
+          let deleteUrl = `${this.apiDomain}/${element.id}`
+          axios.delete(deleteUrl)
+          .then(res)
+          .catch(error => console.log(error))
+        })
+        console.log(res)
+        this.todos = res.data
+      })
     }
   }
 };
