@@ -104,7 +104,7 @@ export default {
         let deleteUrl = `${this.apiDomain}/${res.data[deleteIndex].id}`
         axios.delete(deleteUrl)
         .then(res => {
-            console.log(res)
+          this.$emit('refreshFunc')
           })
         .catch(error => console.log(error))
         console.log(res.data)
@@ -177,11 +177,12 @@ export default {
         res.data.forEach(element => {
           let deleteUrl = `${this.apiDomain}/${element.id}`
           axios.delete(deleteUrl)
-          .then(res)
+          .then(() =>{
+            this.$emit('refreshFunc')
+          })
           .catch(error => console.log(error))
         })
         console.log(res)
-        this.todos = res.data
       })
     }
   }
