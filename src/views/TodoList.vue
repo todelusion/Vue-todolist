@@ -21,7 +21,7 @@
           class="flex items-center justify-between"
           v-show="showTodo(todo)"
           v-for="(todo,index) in todos"
-          :key="todo.id"
+          :key="index"
         >
           <div
             @click="toggleStatus(index)"
@@ -53,7 +53,7 @@ export default {
       temptodo: '',
       switchOptions: '',
       statusOptions: ['inProgress', 'isDone'],
-      todos:'',
+      todos:[{item:'', status:'', hideTrash:true,}],
       apiDomain: 'https://fathomless-brushlands-42339.herokuapp.com/todo8'
     };  
   },
@@ -104,9 +104,8 @@ export default {
         let deleteUrl = `${this.apiDomain}/${res.data[deleteIndex].id}`
         axios.delete(deleteUrl)
         .then(res => {
-          
-          this.todos.splice(index, 1)
-        })
+            console.log(res)
+          })
         .catch(error => console.log(error))
         console.log(res.data)
       })
@@ -150,11 +149,18 @@ export default {
       return inProgressArr.length
     },
     clearDone(){
+      this.todos = this.todos.filter(element => element.status === 'inProgress')
       axios.get(this.apiDomain)
-      this.todos = this.todos.filter(item => (item.status=='inProgress'))
       .then(res => {
-        console.log(res.data)
-        res.data.filter(element => element.status === 'inProgress' )
+        res.data.forEach(element => {
+          if(element.status === 'isDone'){
+            let apiUrl = `${this.apiDomain}/${element.id}`
+            axios.delete(apiUrl)
+            .then(res => console.log(res))
+            .catch(error => console(error))
+          }
+        })
+      
       })
     },
     saveApi(){
