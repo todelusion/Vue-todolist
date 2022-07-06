@@ -42,6 +42,7 @@
   </div>
 </template>
 <script>
+import axios from 'axios';
 export default {
   data() {
     return {
@@ -52,7 +53,18 @@ export default {
       todos: [
         { id:0, status:'inProgress', item: "把冰箱發霉的檸檬拿去丟", hideTrash: true,},
         ],
+      apiData: {
+        content: '',
+        status: '',
+      } 
     };  
+  },
+  mounted(){
+    axios.get('https://fathomless-brushlands-42339.herokuapp.com/todo8')
+    .then(response => {
+      console.log(response)
+    })
+    console.log('mounted')
   },
   methods: {
     keyUpSubmitTodo(e){
@@ -63,6 +75,7 @@ export default {
           status:'inProgress',
           hideTrash: true
         })
+        this.apiSave()
         this.temptodo = ''
       } 
     },
@@ -72,18 +85,19 @@ export default {
           item: this.temptodo,
           status: 'inProgress',
           hideTrash: true
-
         })
+      this.apiSave()
       }
       this.temptodo = ''
     },
     deleteTodo(index){
       this.todos.splice(index, 1)
-    },
+    }, 
     toggleStatus(index){
       let newIndex = this.statusOptions.indexOf(this.todos[index].status)
       if(++ newIndex > 1) newIndex = 0
       this.todos[index].status = this.statusOptions[newIndex]
+      this.apiStatus(index)
     },
     showTodo(todo){
       if(this.switchOptions == this.statusOptions[0] || this.switchOptions == this.statusOptions[1]){
@@ -114,6 +128,17 @@ export default {
       //   })
    
       this.todos = this.todos.filter(item => (item.status=='inProgress'))
+    },
+    apiSave(){
+      this.todos.forEach(element => {
+        this.apiData.content = element.item
+        this.apiData.status = element.status
+      })
+      console.log(this.apiData)
+    },
+    apiStatus(index){
+      this.todos[index].status != 
+      console.log(this.apiData)
     }
   }
 };
