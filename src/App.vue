@@ -10,11 +10,24 @@
         />
       </router-link>
     </nav>
-    <router-view />
+    <router-view @refreshFunc="routerRefresh" :key="refresh" />
   </div>
 </template>
 
-
+<script>
+export default {
+  data(){
+    return{
+      refresh: 0
+    }
+  },
+  methods: {
+    routerRefresh(){
+      this.refresh += 1
+    }
+  }
+}
+</script>
 
 <style>
 body {

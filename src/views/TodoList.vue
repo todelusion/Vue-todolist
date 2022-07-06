@@ -21,7 +21,7 @@
           class="flex items-center justify-between"
           v-show="showTodo(todo)"
           v-for="(todo,index) in todos"
-          :key="todo.id"
+          :key="index"
         >
           <div
             @click="toggleStatus(index)"
@@ -36,6 +36,8 @@
         <ul class="state">
           <li>{{ todosCount() }} 個待完成項目</li>
           <li @click="clearDone" class="text-gray-400 cursor-pointer">清除已完成項目</li>
+          <li @click="clearAll" class="text-red-400 cursor-pointer">清除全部</li>
+
         </ul>
       </ul>
     </div>
@@ -50,33 +52,28 @@ export default {
       temptodo: '',
       switchOptions: '',
       statusOptions: ['inProgress', 'isDone'],
-      todos: [
-        { id:0, status:'inProgress', item: "把冰箱發霉的檸檬拿去丟", hideTrash: true,},
-        ],
-      apiData: {
-        content: '',
-        status: '',
-      } 
+      todos:[{item:'', status:'', hideTrash:true,}],
+      apiDomain: 'https://fathomless-brushlands-42339.herokuapp.com/todo8'
     };  
   },
-  mounted(){
-    axios.get('https://fathomless-brushlands-42339.herokuapp.com/todo8')
-    .then(response => {
-      console.log(response)
+  created(){
+    axios.get(this.apiDomain)
+    .then(res => {
+      this.todos = res.data
+      console.log(this.todos)
     })
-    console.log('mounted')
   },
   methods: {
     keyUpSubmitTodo(e){
       if(e.key === "Enter" && this.temptodo){
         this.todos.push({
-          id: this.todos.length+1,
           item: this.temptodo,
           status:'inProgress',
           hideTrash: true
         })
-        this.apiSave()
+        this.saveApi()
         this.temptodo = ''
+        axios.get(this.apiDomain)
       } 
     },
     submitTodo(){
@@ -85,19 +82,49 @@ export default {
           item: this.temptodo,
           status: 'inProgress',
           hideTrash: true
+
         })
-      this.apiSave()
-      }
+      this.saveApi()
       this.temptodo = ''
+      }
     },
     deleteTodo(index){
-      this.todos.splice(index, 1)
-    }, 
+      /*API delete*/
+      let deleteIndex
+      axios.get(this.apiDomain)
+      .then(res => {
+        for(let i=0; i<res.data.length; i++){
+          if(res.data[i].item === this.todos[index].item){
+            deleteIndex = i
+          }
+        }
+        console.log(deleteIndex)
+        let deleteUrl = `${this.apiDomain}/${res.data[deleteIndex].id}`
+        axios.delete(deleteUrl)
+        .then(res => {
+          this.$emit('refreshFunc')
+          })
+        .catch(error => console.log(error))
+        console.log(res.data)
+      })
+    },
     toggleStatus(index){
       let newIndex = this.statusOptions.indexOf(this.todos[index].status)
       if(++ newIndex > 1) newIndex = 0
       this.todos[index].status = this.statusOptions[newIndex]
-      this.apiStatus(index)
+      axios.get(this.apiDomain)
+      .then(res => {
+        res.data.forEach((element,n) => {
+          if(element.item == this.todos[index].item){
+            let statusUrl = `${this.apiDomain}/${element.id}`
+            axios.patch(statusUrl, {
+              
+              status: this.todos[index].status
+            })
+            .then(res => console.log(res))
+          }
+        })
+      })
     },
     showTodo(todo){
       if(this.switchOptions == this.statusOptions[0] || this.switchOptions == this.statusOptions[1]){
@@ -116,29 +143,45 @@ export default {
       this.switchOptions = this.statusOptions[1]
     },
     todosCount(){
-      let count = this.todos.filter( element => element.status == 'inProgress' )
-      return count.length
+      let inProgressArr = this.todos.filter(element => element.status === 'inProgress')
+      return inProgressArr.length
     },
     clearDone(){
-      // this.todos.forEach((element, index) => {
-      //     if(element.status == 'isDone'){
-      //       this.todos.splice(element.id, 1)
-      //       console.log(this.todos)
-      //     }
-      //   })
-   
-      this.todos = this.todos.filter(item => (item.status=='inProgress'))
-    },
-    apiSave(){
-      this.todos.forEach(element => {
-        this.apiData.content = element.item
-        this.apiData.status = element.status
+      this.todos = this.todos.filter(element => element.status === 'inProgress')
+      axios.get(this.apiDomain)
+      .then(res => {
+        res.data.forEach(element => {
+          if(element.status === 'isDone'){
+            let apiUrl = `${this.apiDomain}/${element.id}`
+            axios.delete(apiUrl)
+            .then(res => console.log(res))
+            .catch(error => console(error))
+          }
+        })
+      
       })
-      console.log(this.apiData)
     },
-    apiStatus(index){
-      this.todos[index].status != 
-      console.log(this.apiData)
+    saveApi(){
+      let obj = {}
+      obj.item = this.temptodo
+      obj.status = 'inProgress'
+      obj.hideTrash = true
+      console.log(obj)
+      axios.post(this.apiDomain,obj)
+    },
+    clearAll(){
+      axios.get(this.apiDomain)
+      .then(res =>{
+        res.data.forEach(element => {
+          let deleteUrl = `${this.apiDomain}/${element.id}`
+          axios.delete(deleteUrl)
+          .then(() =>{
+            this.$emit('refreshFunc')
+          })
+          .catch(error => console.log(error))
+        })
+        console.log(res)
+      })
     }
   }
 };
