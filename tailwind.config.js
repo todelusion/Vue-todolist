@@ -8,17 +8,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'primary': '#3F5D45',
-        'second': '#EAF0ED',
-        'third': '#FFE180',
-        'lightGreen': '#8DA291'
+        'primary': '#333333',
+        'second': '#FFD370'
       },
     },
     fontFamily: {
       sans: ['Noto Sans TC','Roboto'],
       serif: ['Noto Serif TC','Times'],
       dela: ['Dela Gothic One']
-    }
+    },
   },
   variants: {
     extend: {},

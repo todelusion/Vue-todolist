@@ -1,4 +1,5 @@
 <template>
+<div class="main-wrapper">
   <div class="main">
     <div class="add-todo">
       <input @keyup="keyUpSubmitTodo" v-model="temptodo" type="text" placeholder="新增代辦事項" />
@@ -42,6 +43,7 @@
       </ul>
     </div>
   </div>
+</div>
 </template>
 <script>
 import axios from 'axios';

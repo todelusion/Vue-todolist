@@ -1,17 +1,15 @@
 <template>
-  <div class="main-wrapper">
-    <nav>
-      <router-link to="/">
-        <img
-          src="https://i.imgur.com/cKK13oH.png"
-          alt="logo"
-          width="242"
-          class="py-4 px-9"
-        />
-      </router-link>
-    </nav>
-    <router-view @refreshFunc="routerRefresh" :key="refresh" />
-  </div>
+  <nav v-if="!$route.meta.hideNavbar" class="bg-second">
+    <router-link to="/">
+      <img
+        src="https://i.imgur.com/cKK13oH.png"
+        alt="logo"
+        width="242"
+        class="py-4 px-9"
+      />
+    </router-link>
+  </nav>
+  <router-view @refreshFunc="routerRefresh" :key="refresh" />
 </template>
 
 <script>
