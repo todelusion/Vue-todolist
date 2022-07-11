@@ -53,6 +53,12 @@ import axios from 'axios'
 export default {
     data(){
         return{
+            local: {
+                email: 'dsfuiopw@gmail.com',
+                nickname: 'dsfuiopw',
+                password: 'dsf878423123'
+            },
+            apiDomain: 'https://todoo.5xcamp.us',
             user: {
                 email: '',
                 nickname: '',
@@ -67,6 +73,19 @@ export default {
                 if(this.user.password !== this.passwordChecked){
                     return
                 }
+                let obj = {
+                    user: {
+                        email : this.user.email,
+                        nickname : this.user.nickname,
+                        password : this.user.password
+                    }
+                }
+                axios.post(`${this.apiDomain}/users`, obj)
+                .then(res => {console.log(res)
+                    this.$emit('show')
+                })
+                .catch( err => console.log(err) )
+
                 console.log('submit') 
             }else{
                 return

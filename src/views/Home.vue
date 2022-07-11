@@ -1,5 +1,4 @@
 <template>
-<!-- <RegisterSuccess @show="toggleModal" v-if="modal" /> -->
 <div class="flex justify-center h-screen items-center bg-second">
     <ul class="hidden md:block md:mr-28">
         <li>
@@ -48,8 +47,18 @@ import axios from 'axios'
 export default {
     data(){
         return{
-            token: ''
+            modal: false,
+            token: '',
+            user: {
+                email: '',
+                password: ''
+            },
         }
     },
+    methods: {
+        showModal(){
+            modal = !modal
+        }
+    }
 }
 </script>
