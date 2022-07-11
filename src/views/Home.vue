@@ -1,5 +1,5 @@
 <template>
-<RegisterSuccess @show="toggleModal" v-if="modal"/>
+<!-- <RegisterSuccess @show="toggleModal" v-if="modal" /> -->
 <div class="flex justify-center h-screen items-center bg-second">
     <ul class="hidden md:block md:mr-28">
         <li>
@@ -44,21 +44,12 @@
 </div>
 </template>
 <script>
-import RegisterSuccess from "../components/RegisterSuccess.vue"
+import axios from 'axios'
 export default {
     data(){
         return{
-            modal: false
+            token: ''
         }
     },
-    components: {
-        RegisterSuccess
-    },
-    methods: {
-        toggleModal(){
-            console.log('work')
-            this.modal = !this.modal
-        }
-    }
 }
 </script>
