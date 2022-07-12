@@ -11,7 +11,10 @@
             <label for="email" class="text-sm text-primary mb-1">
                 Email
             </label>
-            <p v-show="user.email == '' ? true : false" class="text-red-600 text-xs mb-1">必須輸入email</p>
+            <ul class="flex text-red-600 text-xs mb-1">
+                <li v-show="user.email == '' ? true : false">｜必須輸入email｜</li>
+                <!-- <li v-show="user.email.length>5 ? false : true">｜格式錯誤｜</li> -->
+            </ul>
             <input type="email" v-model.trim="user.email" placeholder="請輸入Email" class="py-3 px-4 bg-white rounded-lg font-medium">
         </form>
     </li>
@@ -29,7 +32,10 @@
             <label for="password" class="flex items-center text-sm text-primary">
                 <p>Password</p>
             </label>
-                <p v-show="user.password == '' ? true : false" class="text-red-600 text-xs mb-1">必須輸入密碼</p>
+            <ul class="flex text-red-600 text-xs mb-1">
+                <li v-show="user.password == '' ? true : false">｜必須輸入密碼｜</li>
+                <li v-show="user.password.length>5 ? false : true">｜至少需要輸入6個字｜</li>
+            </ul>
             <input type="password" v-model.trim="user.password" placeholder="請輸入密碼" class="py-3 px-4 bg-white rounded-lg font-medium">
         </form>
     </li>
@@ -54,7 +60,7 @@ export default {
     data(){
         return{
             local: {
-                email: 'dsfuiopw@gmail.com',
+                email: 'dsfuiopw@gmail.com',    
                 nickname: 'dsfuiopw',
                 password: 'dsf878423123'
             },
@@ -64,7 +70,11 @@ export default {
                 nickname: '',
                 password: '',
             },
-            passwordChecked: ''
+            passwordChecked: '',
+            APIstatus: {
+                successful: '註冊成功',
+                error: '密碼 字數太少，至少需要 6 個字", "電子信箱 格式有誤'
+            }
         }
     },
     methods: {
@@ -81,14 +91,30 @@ export default {
                     }
                 }
                 axios.post(`${this.apiDomain}/users`, obj)
-                .then(res => {console.log(res)
-                    this.$emit('show')
+                .then(res => {
+                    this.$router.push({ path:'/' })
+                    console.log(res)
                 })
-                .catch( err => console.log(err) )
+                .catch(err => {
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'error',
+                        title: '註冊失敗，請再檢查格式',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                    console.log(err)
+                })
 
                 console.log('submit') 
             }else{
-                return
+                Swal.fire({
+                        position: 'center',
+                        icon: 'error',
+                        title: '資料還沒填完喔!!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
             }
 
         },
