@@ -3,7 +3,6 @@ import App from "./App.vue";
 import router from "./router";
 import "./assets/tailwind.css";
 import axios from 'axios';
-import VueAxios from 'vue-axios';
 
 //sweetalert2
 import Swal from 'sweetalert2';
@@ -18,5 +17,5 @@ library.add(faPlus, faCheck, faTrash);
 const app = createApp(App);
 app.component("font-awesome-icon", FontAwesomeIcon);
 
-app.use(router, axios, VueAxios);
+app.use(router, axios);
 app.mount("#app");

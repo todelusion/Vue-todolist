@@ -59,11 +59,6 @@ import axios from 'axios'
 export default {
     data(){
         return{
-            local: {
-                email: 'dsfuiopw@gmail.com',    
-                nickname: 'dsfuiopw',
-                password: 'dsf878423123'
-            },
             user: {
                 email: '',
                 nickname: '',

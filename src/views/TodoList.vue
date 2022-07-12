@@ -46,7 +46,7 @@
 </div>
 </template>
 <script>
-import axios from 'axios';
+import axios from 'axios'
 export default {
   data() {
     return {
@@ -55,15 +55,16 @@ export default {
       switchOptions: '',
       statusOptions: ['inProgress', 'isDone'],
       todos:[{item:'', status:'', hideTrash:true,}],
-      apiDomain: 'https://fathomless-brushlands-42339.herokuapp.com/todo8'
+      // apiDomain: 'https://fathomless-brushlands-42339.herokuapp.com/todo8'
     };  
   },
   created(){
-    axios.get(this.apiDomain)
+    console.log(axios.defaults.headers.common['Authorization'])
+    axios.get(`${this.$route.meta.apiDomain}/todos`)
     .then(res => {
-      this.todos = res.data
-      console.log(this.todos)
+      console.log(res)
     })
+    .catch(err => console.log(err))
   },
   methods: {
     keyUpSubmitTodo(e){

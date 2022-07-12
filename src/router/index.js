@@ -28,6 +28,9 @@ const routes = [
     path: "/todoList",
     name: "todoList",
     component: TodoList,
+    meta: {
+      apiDomain: 'https://todoo.5xcamp.us'
+    }
   },
   {
     path: "/VisiterTodoList",

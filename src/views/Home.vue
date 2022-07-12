@@ -48,15 +48,48 @@ export default {
             modal: false,
             token: '',
             user: {
-                email: '',
-                password: ''
+                email: 'dsfuiopw@gmail.com',
+                password: 'dsf878423123'
+            },
+            local: {
+                email: 'dsfuiopw@gmail.com',    
+                nickname: 'dsfuiopw',
+                password: 'dsf878423123'
             },
         }
     },
     methods: {
         login(){
+            console.log(this.$route.meta.apiDomain)
             if((this.user.email && this.user.password) !== ''){
-                this.$router.push({path: '/todoList'})
+                let obj = {
+                    user: {
+                        email: this.user.email,
+                        password: this.user.password
+                    }
+                }
+                axios.post(`${this.$route.meta.apiDomain}/users/sign_in`, obj)
+                .then(res => {
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'success',
+                        title: '登入成功',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                    axios.defaults.headers.common['Authorization'] = res.headers.authorization
+                    this.$router.push({path: '/todoList'}) 
+                    console.log(res)
+                })
+                .catch(err => {
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'error',
+                        title: '登入失敗',
+                        showConfirmButton: false,
+                    })
+                    console.log(err)
+                })
             }
         }
     }
