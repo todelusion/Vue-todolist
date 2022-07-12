@@ -77,9 +77,8 @@ export default {
                         showConfirmButton: false,
                         timer: 1500
                     })
-                    axios.defaults.headers.common['Authorization'] = res.headers.authorization
+                    sessionStorage.setItem('authorization',`${res.headers.authorization}`)
                     this.$router.push({path: '/todoList'}) 
-                    console.log(res)
                 })
                 .catch(err => {
                     Swal.fire({

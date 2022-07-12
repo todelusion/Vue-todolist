@@ -59,8 +59,13 @@ export default {
     };  
   },
   created(){
-    console.log(axios.defaults.headers.common['Authorization'])
-    axios.get(`${this.$route.meta.apiDomain}/todos`)
+    let token = sessionStorage.getItem('authorization')
+    let config = {
+      headers: { Authorization: token }
+    }
+    console.log(token)
+    console.log(config)
+    axios.get(`${this.$route.meta.apiDomain}/todos`, config)
     .then(res => {
       console.log(res)
     })
