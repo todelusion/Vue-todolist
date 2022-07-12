@@ -10,7 +10,8 @@ const routes = [
     path: "/",
     component: Home,
     meta: {
-      hideNavbar: true
+      hideNavbar: true,
+      apiDomain: 'https://todoo.5xcamp.us'
     },
     children: [
       { 

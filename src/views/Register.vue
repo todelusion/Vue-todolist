@@ -64,7 +64,6 @@ export default {
                 nickname: 'dsfuiopw',
                 password: 'dsf878423123'
             },
-            apiDomain: 'https://todoo.5xcamp.us',
             user: {
                 email: '',
                 nickname: '',
@@ -90,7 +89,7 @@ export default {
                         password : this.user.password
                     }
                 }
-                axios.post(`${this.apiDomain}/users`, obj)
+                axios.post(`${this.$route.meta.apiDomain}/users`, obj)
                 .then(res => {
                     this.$router.push({ path:'/' })
                     console.log(res)
