@@ -1,10 +1,11 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory, createWebHashHistory } from "vue-router";
 import Home from "../views/Home.vue"
 import TodoList from "../views/TodoList.vue";
 import Register from "../views/Register.vue";
 import VisiterTodoList from "../views/VisiterTodoList.vue";
 
-let history = createWebHistory("/RocketTeam-10th/");
+// let history = createWebHistory("/RocketTeam-10th/");
+let history = createWebHashHistory("/RocketTeam-10th/");
 const routes = [
   {
     path: "/",

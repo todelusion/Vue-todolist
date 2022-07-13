@@ -90,25 +90,40 @@ export default {
       this.temptodo = ''
       }
     },
-    deleteTodo(index){
+    async deleteTodo(index){
       /*API delete*/
       console.log(index)
       let deleteIndex
+      
+      /*API search index*/
+      const res = await axios.get(this.apiDomain)
+      res.data.forEach((element, n) => {
+        if(element.item == this.todos[index].item){
+          deleteIndex = n
+          console.log(deleteIndex)
+        }
+      })
+
+      /*API delete*/
+      let deleteUrl = `${this.apiDomain}/${res.data[deleteIndex].id}`
+      await axios.delete(deleteUrl)
+      this.$emit('refreshFunc')
+
+      return
       axios.get(this.apiDomain)
       .then(res => {
-        for(let i=0; i<res.data.length; i++){
-          if(res.data[i].item === this.todos[index].item){
-            deleteIndex = i
+        res.data.forEach((element, n) => {
+          if(element.item == this.todos[index].item){
+            deleteUrl = n
           }
-        }
-        console.log(deleteIndex)
+        })
+    
         let deleteUrl = `${this.apiDomain}/${res.data[deleteIndex].id}`
         axios.delete(deleteUrl)
         .then(res => {
           this.$emit('refreshFunc')
           })
         .catch(error => console.log(error))
-        console.log(res.data)
       })
     },
     toggleStatus(index){
