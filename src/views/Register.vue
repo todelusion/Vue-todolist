@@ -88,6 +88,13 @@ export default {
                 .then(res => {
                     this.$router.push({ path:'/' })
                     console.log(res)
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'success',
+                        title: '註冊成功',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
                 })
                 .catch(err => {
                     Swal.fire({
