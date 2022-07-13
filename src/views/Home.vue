@@ -48,19 +48,13 @@ export default {
             modal: false,
             token: '',
             user: {
-                email: 'dsfuiopw@gmail.com',
-                password: 'dsf878423123'
-            },
-            local: {
-                email: 'dsfuiopw@gmail.com',    
-                nickname: 'dsfuiopw',
-                password: 'dsf878423123'
+                email: '',
+                password: ''
             },
         }
     },
     methods: {
         login(){
-            console.log(this.$route.meta.apiDomain)
             if((this.user.email && this.user.password) !== ''){
                 let obj = {
                     user: {

@@ -6,7 +6,7 @@
       <font-awesome-icon
         @click="submitTodo"
         icon="plus"
-        class="i-plus"
+        class="i-plus cursor-pointer"
       ></font-awesome-icon>
     </div>
     <div class="wrapper">
@@ -17,8 +17,6 @@
       </ul>
       <ul class="todo-wrapper">
         <li
-          @mouseenter="todo.hideTrash = !todo.hideTrash"
-          @mouseleave="todo.hideTrash = !todo.hideTrash"
           class="flex items-center justify-between"
           v-show="showTodo(todo)"
           v-for="(todo,index) in todos"
@@ -28,11 +26,11 @@
             @click="toggleStatus(index)"
             class="flex cursor-pointer items-center"
           >
-            <font-awesome-icon :class="['isDone' == todo.status ? 'show' : 'hide']" icon="check" class="i-check" />
-            <div :class="['inProgress' == todo.status ? 'show' : 'hide']" class="square"></div>
-            <p :class="['isDone' == todo.status ? 'isDone-item' : '']" class="hover:line-through duration-75">{{ todo.item }}</p>
+            <font-awesome-icon :class="[null !== todo.completed_at ? 'show' : 'hide']" icon="check" class="i-check" />
+            <div :class="[null == todo.completed_at ? 'show' : 'hide']" class="square"></div>
+            <p :class="[null !== todo.completed_at ? 'isDone-item' : '']" class="hover:line-through duration-75">{{ todo.content }}</p>
           </div>
-          <font-awesome-icon :class="{ 'hide': todo.hideTrash, 'show': !todo.hideTrash }" @click="deleteTodo(index)" icon="trash" class="i-trash cursor-pointer" />
+          <font-awesome-icon @click="deleteTodo(index)" icon="trash" class="i-trash cursor-pointer" />
         </li>
         <ul class="state">
           <li>{{ todosCount() }} 個待完成項目</li>
@@ -53,90 +51,122 @@ export default {
       isDone: false,
       temptodo: '',
       switchOptions: '',
-      statusOptions: ['inProgress', 'isDone'],
-      todos:[{item:'', status:'', hideTrash:true,}],
-      // apiDomain: 'https://fathomless-brushlands-42339.herokuapp.com/todo8'
+      statusOptions: [typeof(null), typeof("string")],
+      todos:[],
+      apiDomain: this.$route.meta.apiDomain,
+      config: {
+        headers: { Authorization: sessionStorage.getItem('authorization') }
+      }
     };  
   },
   created(){
-    let token = sessionStorage.getItem('authorization')
-    let config = {
-      headers: { Authorization: token }
-    }
-    console.log(token)
-    console.log(config)
-    axios.get(`${this.$route.meta.apiDomain}/todos`, config)
-    .then(res => {
-      console.log(res)
-    })
-    .catch(err => console.log(err))
+    this.getApi()
   },
   methods: {
+    //init
+    getApi(){
+      axios.get(`${this.apiDomain}/todos`, this.config)
+      .then(res => {
+        this.todos = res.data.todos
+      })
+      .catch(err => console.log(err))
+    },
+    saveApi(){
+      let obj = {}
+      obj.content = this.temptodo
+      axios.post(`${this.apiDomain}/todos`, obj, this.config)
+      .then(res => {
+        this.refreshDom()
+      })
+    },
+    refreshDom(){
+      this.$emit('refreshFunc')
+    },
+    //CRUD
     keyUpSubmitTodo(e){
       if(e.key === "Enter" && this.temptodo){
-        this.todos.push({
-          item: this.temptodo,
-          status:'inProgress',
-          hideTrash: true
-        })
         this.saveApi()
         this.temptodo = ''
-        axios.get(this.apiDomain)
       } 
     },
     submitTodo(){
       if(this.temptodo){
-        this.todos.push({
-          item: this.temptodo,
-          status: 'inProgress',
-          hideTrash: true
-
-        })
       this.saveApi()
       this.temptodo = ''
       }
     },
     deleteTodo(index){
-      /*API delete*/
-      let deleteIndex
-      axios.get(this.apiDomain)
+      axios.get(`${this.apiDomain}/todos`, this.config)
       .then(res => {
-        for(let i=0; i<res.data.length; i++){
-          if(res.data[i].item === this.todos[index].item){
+        let deleteIndex
+        for(let i=0; i<res.data.todos.length; i++){
+          if(res.data.todos[i].id === this.todos[index].id){
             deleteIndex = i
           }
         }
-        console.log(deleteIndex)
-        let deleteUrl = `${this.apiDomain}/${res.data[deleteIndex].id}`
-        axios.delete(deleteUrl)
+        let deleteUrl = `${this.apiDomain}/todos/${res.data.todos[deleteIndex].id}`
+        axios.delete(deleteUrl, this.config)
         .then(res => {
-          this.$emit('refreshFunc')
+          this.refreshDom()
           })
         .catch(error => console.log(error))
-        console.log(res.data)
       })
     },
     toggleStatus(index){
-      let newIndex = this.statusOptions.indexOf(this.todos[index].status)
-      if(++ newIndex > 1) newIndex = 0
-      this.todos[index].status = this.statusOptions[newIndex]
-      axios.get(this.apiDomain)
+      axios.get(`${this.apiDomain}/todos`, this.config)
       .then(res => {
-        res.data.forEach((element,n) => {
-          if(element.item == this.todos[index].item){
-            let statusUrl = `${this.apiDomain}/${element.id}`
+        res.data.todos.forEach((element) => {
+          if(element.id == this.todos[index].id){
+            let statusUrl = `${this.apiDomain}/todos/${element.id}/toggle`
             axios.patch(statusUrl, {
-              
-              status: this.todos[index].status
+              completed_at: this.todos[index].completed_at
+            }, this.config)
+            .then(res => {
+              this.refreshDom()
             })
-            .then(res => console.log(res))
           }
         })
       })
     },
+    clearDone(){
+      this.todos = this.todos.filter(element => element.completed_at === null)
+      axios.get(`${this.apiDomain}/todos`, this.config)
+      .then(res => {
+        res.data.todos.forEach(element => {
+          if(typeof(element.completed_at) === 'string'){
+            let apiUrl = `${this.apiDomain}/todos/${element.id}`
+            axios.delete(apiUrl, this.config)
+            .then(res => console.log(res))
+            .catch(error => console(error))
+          }
+        })
+      
+      })
+    },
+    clearAll(){
+      axios.get(`${this.apiDomain}/todos`, this.config)
+      .then(res =>{
+        res.data.todos.forEach(element => {
+          let deleteUrl = `${this.apiDomain}/todos/${element.id}`
+          axios.delete(deleteUrl, this.config)
+          .then(() =>{
+            this.refreshDom()
+          })
+          .catch(error => console.log(error))
+        })
+      })
+    },
+
+    // UI display
+    todosCount(){
+      let inProgressArr = this.todos.filter(element => element.completed_at === null)
+      return inProgressArr.length
+    },
+
+    // Local todos status switching
     showTodo(todo){
       if(this.switchOptions == this.statusOptions[0] || this.switchOptions == this.statusOptions[1]){
-        return todo.status == this.switchOptions
+        return typeof(todo.completed_at) == this.switchOptions
       }else {
         return true
       }
@@ -150,47 +180,7 @@ export default {
     switchToDone(){
       this.switchOptions = this.statusOptions[1]
     },
-    todosCount(){
-      let inProgressArr = this.todos.filter(element => element.status === 'inProgress')
-      return inProgressArr.length
-    },
-    clearDone(){
-      this.todos = this.todos.filter(element => element.status === 'inProgress')
-      axios.get(this.apiDomain)
-      .then(res => {
-        res.data.forEach(element => {
-          if(element.status === 'isDone'){
-            let apiUrl = `${this.apiDomain}/${element.id}`
-            axios.delete(apiUrl)
-            .then(res => console.log(res))
-            .catch(error => console(error))
-          }
-        })
-      
-      })
-    },
-    saveApi(){
-      let obj = {}
-      obj.item = this.temptodo
-      obj.status = 'inProgress'
-      obj.hideTrash = true
-      console.log(obj)
-      axios.post(this.apiDomain,obj)
-    },
-    clearAll(){
-      axios.get(this.apiDomain)
-      .then(res =>{
-        res.data.forEach(element => {
-          let deleteUrl = `${this.apiDomain}/${element.id}`
-          axios.delete(deleteUrl)
-          .then(() =>{
-            this.$emit('refreshFunc')
-          })
-          .catch(error => console.log(error))
-        })
-        console.log(res)
-      })
-    }
+
   }
 };
 </script>
@@ -355,7 +345,9 @@ input[placeholder] {
   margin-right: 4px;
 }
 .i-trash {
+  opacity: 0;
   color: rgb(101, 101, 101);
+  transition: 0.1s ease-in-out;
 }
 
 .wrapper {
@@ -417,6 +409,10 @@ input[placeholder] {
     display: flex;
     align-items: center;
     border-bottom: 1px solid #e5e5e5;
+    &:hover > .i-trash{
+      transition: 0.2s ease-in-out;
+      opacity: 1;
+    }
   }
   p {
     margin-left: 16px;

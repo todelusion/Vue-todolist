@@ -93,7 +93,6 @@ export default {
     deleteTodo(index){
       /*API delete*/
       console.log(index)
-      return
       let deleteIndex
       axios.get(this.apiDomain)
       .then(res => {
